@@ -1,0 +1,3628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Columbus SMB Map - Female Ownership</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+        .info-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 280px;
+        }
+        .info-panel h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .info-panel p {
+            margin: 5px 0;
+            font-size: 13px;
+            color: #666;
+        }
+        .legend {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #333;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        .legend-icon {
+            margin-right: 8px;
+            display: inline-block;
+        }
+        .leaflet-popup-content {
+            margin: 10px;
+            line-height: 1.4;
+        }
+        .popup-business {
+            font-weight: bold;
+            color: #2c5282;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .popup-address {
+            color: #333;
+            font-size: 13px;
+        }
+        .popup-detail {
+            color: #666;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+        .popup-ownership {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+        }
+        .popup-ownership-item {
+            margin: 3px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="info-panel">
+        <h3>📍 Columbus SMB Map</h3>
+        <p><strong>Total:</strong> 313</p>
+        <p><strong>Female Owned:</strong> 146 (46.6%)</p>
+        <p><strong>Non-Female Owned:</strong> 167 (53.4%)</p>
+        
+        <div class="legend">
+            <div class="legend-title">Legend</div>
+            <div class="legend-item">
+                <span class="legend-icon">
+                    <svg width="16" height="16">
+                        <circle cx="8" cy="8" r="6" fill="#e74c3c" stroke="white" stroke-width="2"/>
+                    </svg>
+                </span>
+                <span>Red: Female owned</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon">
+                    <svg width="16" height="16">
+                        <circle cx="8" cy="8" r="6" fill="#3498db" stroke="white" stroke-width="2"/>
+                    </svg>
+                </span>
+                <span>Blue: Non-female owned</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map centered on Columbus, Ohio
+        const map = L.map('map').setView([39.9612, -82.9988], 11);
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Address data
+        const locations = [
+  {
+    "lat": 39.973815837863,
+    "lng": -82.967560646575,
+    "business": "Willowbeez Soulveg",
+    "address": "1301 Hildreth Ave, Columbus, Ohio, 43203",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43203.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.031570838779,
+    "lng": -82.94322597,
+    "business": "Cafe Wakefern",
+    "address": "3060 Wakefern Pl, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.004038382323,
+    "lng": -82.7851746244289,
+    "business": "Win Win Mediation Services",
+    "address": "7930 Champaign Dr, Blacklick, Ohio, 43004",
+    "city": "Blacklick",
+    "state": "Ohio",
+    "zip": "43004.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.952259846009,
+    "lng": -82.99401795631,
+    "business": "A Plus Staffing Solutions LLC",
+    "address": "500 S 4th St, Columbus, Ohio, 43206",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43206.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.96639978139,
+    "lng": -83.003432677595,
+    "business": "Sylvia A. Garrett Insurance Agency LLC",
+    "address": "215 N Front St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.968347274684,
+    "lng": -83.006156796127,
+    "business": "Tasty Main LLC dba Zoup!",
+    "address": "155 W Nationwide Blvd, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.34691094437,
+    "lng": -82.379597547641,
+    "business": "Bonanza Enterprises Corporation",
+    "address": "20740 Lee Wolfe Rd, Gambier, Ohio, 43022",
+    "city": "Gambier",
+    "state": "Ohio",
+    "zip": "43022.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.920795145408,
+    "lng": -82.996059620285,
+    "business": "WILD OHIO BREWING",
+    "address": "2025 S High St, Columbus, Ohio, 43207",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43207.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.046972502045,
+    "lng": -82.869061214323,
+    "business": "The Higher Standard Consulting",
+    "address": "301 Vista Dr, Columbus, Ohio, 43230",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43230.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.133441388669,
+    "lng": -82.9672671961449,
+    "business": "Healthstrides, Inc.",
+    "address": "1105 Judy Ct, Westerville, Ohio, 43081",
+    "city": "Westerville",
+    "state": "Ohio",
+    "zip": "43081.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.066619347812,
+    "lng": -83.0418851613259,
+    "business": "The Garden Sage LLC",
+    "address": "873 Clover Dr, Columbus, Ohio, 43235",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43235.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.014079818509,
+    "lng": -82.91743644649,
+    "business": "Flexvone",
+    "address": "2184 Citygate Drive, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.950690963283,
+    "lng": -82.867946169743,
+    "business": "Sunrise Development dba SRD & Associates, LLC",
+    "address": "1222 Littlejohn Dr, Columbus, Ohio, 43227",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43227.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.976524449874,
+    "lng": -83.0036035846,
+    "business": "The Painting Connection Company",
+    "address": "691 N High St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.056381230269,
+    "lng": -82.95851816561,
+    "business": "I CEE RAINBOWS",
+    "address": "2200 Belcher Dr, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.999987115152,
+    "lng": -82.820431256118,
+    "business": "LeVeck Commercial Construction & Development",
+    "address": "625 Eastgate Pkwy, Columbus, Ohio, 43230",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43230.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.9850142399,
+    "lng": -83.043371616954,
+    "business": "Studio Rouge",
+    "address": "1411 W 3rd Ave, Columbus, Ohio, 43212",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43212.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.944549710464,
+    "lng": -82.879241035729,
+    "business": "Coaching 4 ULLC dba This and That",
+    "address": "4343 E Livingston Ave, Columbus, Ohio, 43227",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43227.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.955470534021,
+    "lng": -82.887974308286,
+    "business": "Advanced Home Care, Inc",
+    "address": "4133 E Main St, Columbus, Ohio, 43213",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43213.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.066258045876,
+    "lng": -82.999167546164,
+    "business": "The Diamond age cent",
+    "address": "4889 Sinclair Rd, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.845018046836,
+    "lng": -82.805222460444,
+    "business": "evolverie",
+    "address": "79 N High St, Canal Winchester, Ohio, 43110",
+    "city": "Canal Winchester",
+    "state": "Ohio",
+    "zip": "43110.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.063994890109,
+    "lng": -82.973723692342,
+    "business": "Taysir Express LLC",
+    "address": "1683 Slatebrook Ln, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.03240265885,
+    "lng": -82.9907854753499,
+    "business": "Q-STIX   PoolHall",
+    "address": "881 Oakland Park Ave, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.990109084169,
+    "lng": -82.998313933144,
+    "business": "MR 25 Cleaning Services,LLC",
+    "address": "1315 N 5th St, Columbus, Ohio, 43201",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43201.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.971660766737,
+    "lng": -83.044617913219,
+    "business": "Buckeye Strength LLC",
+    "address": "1066 Ridge St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.893180923487,
+    "lng": -82.729650047947,
+    "business": "Repaint LLC",
+    "address": "7554 Stemen Rd, Pickerington, Ohio, 43147",
+    "city": "Pickerington",
+    "state": "Ohio",
+    "zip": "43147.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.139626939846,
+    "lng": -83.043570510598,
+    "business": "Measurement Resources Company, LLC",
+    "address": "1480 Manning Pkwy, Suite A, Powell, Ohio, 43065",
+    "city": "Powell",
+    "state": "Ohio",
+    "zip": "43065.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.134185492124,
+    "lng": -83.014646742034,
+    "business": "AVANT-GARDE IMPRESSIONS",
+    "address": "34 Dillmont Dr, Columbus, Ohio, 43235",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43235.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.004501412458,
+    "lng": -83.1589714068179,
+    "business": "FEY ROOFING AND SHEET METAL",
+    "address": "Hilliard Place Dr, Hilliard, Ohio, 43026",
+    "city": "Hilliard",
+    "state": "Ohio",
+    "zip": "43026.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.981876378871,
+    "lng": -82.960870630555,
+    "business": "USIC Brands LLC",
+    "address": "725 Taylor Ave, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.997350000775,
+    "lng": -83.041777034775,
+    "business": "SafeWhite",
+    "address": "1275 Kinnear Rd, Columbus, Ohio, 43212",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43212.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.040481137131,
+    "lng": -82.959341603778,
+    "business": "SAFETY LINK LLC",
+    "address": "2062 Lantern Drive, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.029682479813,
+    "lng": -82.8900287965729,
+    "business": "H & X TRANSPORT LLC",
+    "address": "378 Gamewood Dr, Columbus, Ohio, 43230",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43230.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.977838271287,
+    "lng": -83.003866524903,
+    "business": "phia salon, LLC",
+    "address": "755 N High St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.049549979181,
+    "lng": -82.9162909756019,
+    "business": "Celebrate Local Enterprises, Inc",
+    "address": "3952 Townsfair Way, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.086750332306,
+    "lng": -82.980430304529,
+    "business": "GlamQueen LLC",
+    "address": "1395 E Dublin Granville Rd, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.964211811295,
+    "lng": -82.991416716478,
+    "business": "Hurley Henson Limited",
+    "address": "33 N Grant Ave, Suite 250, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.969195649013,
+    "lng": -82.9756380352079,
+    "business": "DIVINE HANDS CLEANING AND PET",
+    "address": "190 N 18th St, Columbus, Ohio, 43203",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43203.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.905251031697,
+    "lng": -82.992431094401,
+    "business": "Sterling Fundways",
+    "address": "112 Cullman Rd, Columbus, Ohio, 43207",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43207.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.046325922034,
+    "lng": -82.853719649303,
+    "business": "JM Miller Properties LLC",
+    "address": "1094 Arcaro Dr, Columbus, Ohio, 43230",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43230.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.991879006844,
+    "lng": -83.0486545539689,
+    "business": "Avenue X Fitness, LLC",
+    "address": "1562 King Ave, Columbus, Ohio, 43212",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43212.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.929817467895,
+    "lng": -82.931060475731,
+    "business": "One Research and Development LLC",
+    "address": "2300 Waterfall Ln, Columbus, Ohio, 43209",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43209.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Three T Trucking",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.976090728294,
+    "lng": -83.0031833997939,
+    "business": "Big Fun Columbus",
+    "address": "672 N High St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Daniel Trucking",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.961008541268,
+    "lng": -83.0132683380569,
+    "business": "Renter Mentor",
+    "address": "470 W Broad St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.9958112929,
+    "lng": -82.794724881088,
+    "business": "Distinct Event Planning LLC",
+    "address": "7863 Antonio Ln, Blacklick, Ohio, 43004",
+    "city": "Blacklick",
+    "state": "Ohio",
+    "zip": "43004.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.042131533866,
+    "lng": -82.8629360547579,
+    "business": "MAGADOM SYSTEMS",
+    "address": "947 E Johnstown Rd, Columbus, Ohio, 43230",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43230.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.006331964399,
+    "lng": -82.954536426326,
+    "business": "Quality Adult Daycare Center, LLC",
+    "address": "1867 Woodland Ave, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.842626480312,
+    "lng": -82.825077009772,
+    "business": "Fantasy Football Metrics Dot Com LLC",
+    "address": "6566 Hemmingford Dr, Canal Winchester, Ohio, 43110",
+    "city": "Canal Winchester",
+    "state": "Ohio",
+    "zip": "43110.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Karen Daw Consulting",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.983717882998,
+    "lng": -82.8453123489609,
+    "business": "Himalayan Care Center",
+    "address": "5825 Westbourne Ave, Columbus, Ohio, 43213",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43213.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.936372619093,
+    "lng": -82.979505026238,
+    "business": "Elite National Building Services",
+    "address": "592 Hanford St, Columbus, Ohio, 43206",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43206.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.967373423263,
+    "lng": -82.981190794604,
+    "business": "Rob Group of Ohio LLC",
+    "address": "740 E Long St, Columbus, Ohio, 43203",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43203.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Five Point Fit",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.087243649218,
+    "lng": -83.0183785329659,
+    "business": "Chek Creative LLC",
+    "address": "659 High St, Worthington, Ohio, 43085",
+    "city": "Worthington",
+    "state": "Ohio",
+    "zip": "43085.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.041891979073,
+    "lng": -82.99453822104,
+    "business": "Col.oh llc",
+    "address": "3770 Kinsey Dr, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.947372777363,
+    "lng": -82.93731857228,
+    "business": "A-1 Transportation LLC",
+    "address": "1033 College Ave, Columbus, Ohio, 43209",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43209.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.052837277787,
+    "lng": -83.06188807034,
+    "business": "R & J Bardon Printing & Graphics, Inc.",
+    "address": "4676 Larwell Dr, Columbus, Ohio, 43220",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43220.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.936173004069,
+    "lng": -83.14287326445,
+    "business": "capitals translation services llc",
+    "address": "5563 Wesliegh Run Dr, Columbus, Ohio, 43228",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43228.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.076953270508,
+    "lng": -82.925557504839,
+    "business": "The Ardit Company",
+    "address": "3535 Johnny Appleseed Ct, Columbus, Ohio, 43231",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43231.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.143810641087,
+    "lng": -82.9692243705359,
+    "business": "effution LLC",
+    "address": "1900 Polaris Pkwy, Suite 450, Columbus, Ohio, 43240",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43240.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.960121735912,
+    "lng": -82.9137760693739,
+    "business": "F&H Cleaning Services Inc.",
+    "address": "561 S Ashburton Rd, Columbus, Ohio, 43213",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43213.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.966013627111,
+    "lng": -82.993152608626,
+    "business": "Redeeming Injustice",
+    "address": "300 E Long St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.941040878157,
+    "lng": -83.141817815202,
+    "business": "Flecha Law Ltd.",
+    "address": "530 Norton Rd, Columbus, Ohio, 43228",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43228.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.955272846834,
+    "lng": -82.996775518636,
+    "business": "Ohio Senior Solutions",
+    "address": "341 S 3rd St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.159189631305,
+    "lng": -82.9335957499839,
+    "business": "Talmck, LLC",
+    "address": "6922 Stillwater Cv, Westerville, Ohio, 43082",
+    "city": "Westerville",
+    "state": "Ohio",
+    "zip": "43082.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.076759941912,
+    "lng": -82.96707885478,
+    "business": "Riyayaltd",
+    "address": "1872 Tamarack Cir S, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.982344256706,
+    "lng": -83.004397099374,
+    "business": "Mukha Custom Cosmetics",
+    "address": "980 North High Street, Columbus, Ohio, 43201",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43201.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.112321758695,
+    "lng": -82.92850248652,
+    "business": "Divine Acceleration",
+    "address": "38 Rushka Ct, Westerville, Ohio, 43081",
+    "city": "Westerville",
+    "state": "Ohio",
+    "zip": "43081.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.053517762596,
+    "lng": -82.9163050572,
+    "business": "Aventi Enterprises",
+    "address": "4200 Regent St, Suite 200, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.974013399321,
+    "lng": -83.02442666284,
+    "business": "Portfolio Creative, LLC",
+    "address": "777 Goodale Blvd, Suite 300, Columbus, Ohio, 43212",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43212.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.976920997713,
+    "lng": -82.952176333848,
+    "business": "Second Spring Media",
+    "address": "1894 Merryhill Dr, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.104819075253,
+    "lng": -83.0177462021899,
+    "business": "Stotzer Enterprise, LLC",
+    "address": "6877 N High St, Suite 301, Worthington, Ohio, 43085",
+    "city": "Worthington",
+    "state": "Ohio",
+    "zip": "43085.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.175449559547,
+    "lng": -83.1030842862569,
+    "business": "TMH Solutions LLC",
+    "address": "4176 Menderes Dr, Powell, Ohio, 43065",
+    "city": "Powell",
+    "state": "Ohio",
+    "zip": "43065.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.983052519349,
+    "lng": -82.8112157362889,
+    "business": "Able Handz Roadside Assistance",
+    "address": "Columbus Rd SW, Columbus, Ohio, 43213",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43213.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.987706998357,
+    "lng": -82.9413513573539,
+    "business": "B & B Total Lawn Care Services, LLC",
+    "address": "921 N Nelson Rd, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.052440436581,
+    "lng": -83.020346603831,
+    "business": "4 POINTS ASSET MANAGEMENT LLC",
+    "address": "4425 N High St, Columbus, Ohio, 43214",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43214.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.273609985725,
+    "lng": -81.861707662168,
+    "business": "Ohio Family Counseling and Consultation, LLC",
+    "address": "550 Main St, Coshocton, Ohio, 43812",
+    "city": "Coshocton",
+    "state": "Ohio",
+    "zip": "43812.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.981910702764,
+    "lng": -82.825745718007,
+    "business": "JaDour, LLC",
+    "address": "6600 East Broad Street, Columbus, Ohio, 43213",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43213.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Random Precision Brewing Company, LLC",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.916667309551,
+    "lng": -83.107493167327,
+    "business": "Bare",
+    "address": "1800 Pheasant Run W, Apartment C, Columbus, Ohio, 43228",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43228.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.482987286748,
+    "lng": -82.542975089766,
+    "business": "Broell Enterprises LLC",
+    "address": "138 N Main St, Fredericktown, Ohio, 43019",
+    "city": "Fredericktown",
+    "state": "Ohio",
+    "zip": "43019.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.094581502534,
+    "lng": -82.923937953508,
+    "business": "ALL STAR ACADEMY LEARNING CENTER",
+    "address": "5992 Westerville Rd, Suite I, Westerville, Ohio, 43081",
+    "city": "Westerville",
+    "state": "Ohio",
+    "zip": "43081.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.934970368601,
+    "lng": -82.968168083098,
+    "business": "Reliable mowing of Columbus",
+    "address": "1478 Wilson Ave, Columbus, Ohio, 43206",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43206.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.121169947144,
+    "lng": -82.893449451259,
+    "business": "miles therapy llc",
+    "address": "104 Gibson Pl, Westerville, Ohio, 43081",
+    "city": "Westerville",
+    "state": "Ohio",
+    "zip": "43081.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.872301960885,
+    "lng": -82.834034510294,
+    "business": "Yahs Helping Hands, LLC",
+    "address": "5193 Leafy Glade Dr, Canal Winchester, Ohio, 43110",
+    "city": "Canal Winchester",
+    "state": "Ohio",
+    "zip": "43110.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.927737121437,
+    "lng": -82.8962164013159,
+    "business": "SPOTLIGHT CLEANERS",
+    "address": "2199 Courtside Dr, Apartment F, Columbus, Ohio, 43232",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43232.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.97244485187,
+    "lng": -82.974039941548,
+    "business": "Chef Butcher's Creole Kitchen LLC",
+    "address": "1052 Mount Vernon Ave, Unit B, Columbus, Ohio, 43203",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43203.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.034088762493,
+    "lng": -82.9627676228819,
+    "business": "Jubba travel agent and human service",
+    "address": "3252 Cleveland Ave, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.946628170994,
+    "lng": -82.944526673734,
+    "business": "Playtime Preschool, LLC",
+    "address": "1030 Alum Creek Dr, Columbus, Ohio, 43209",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43209.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.865910401505,
+    "lng": -82.821117985445,
+    "business": "Rainsuperior Services, Ltd",
+    "address": "6663 Warriner Way, Canal Winchester, Ohio, 43110",
+    "city": "Canal Winchester",
+    "state": "Ohio",
+    "zip": "43110.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.957052576336,
+    "lng": -82.996718940789,
+    "business": "Albeit Weiker LLP",
+    "address": "262 S 3rd St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.965223632737,
+    "lng": -83.001423786861,
+    "business": "Deli Boys Llc",
+    "address": "141 North High Street, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.063194627903,
+    "lng": -83.0488055120449,
+    "business": "Essence Counseling Group, LLC",
+    "address": "1115 Bethel Rd, Columbus, Ohio, 43220",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43220.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.971571792835,
+    "lng": -83.096031920563,
+    "business": "FleshmanPhoto.Com",
+    "address": "3471 Lowell Dr, Columbus, Ohio, 43204",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43204.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.963487028127,
+    "lng": -83.0005075610249,
+    "business": "Evans Creative Group",
+    "address": "11 E Gay St, Suite 300, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.122092627046,
+    "lng": -83.088523579337,
+    "business": "TGS Systems LLC",
+    "address": "7652 Sawmill Rd, Dublin, Ohio, 43016",
+    "city": "Dublin",
+    "state": "Ohio",
+    "zip": "43016.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.941719141762,
+    "lng": -82.903476386752,
+    "business": "Nettys Kitchen",
+    "address": "1485 Picard Rd, Columbus, Ohio, 43227",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43227.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.063097816921,
+    "lng": -83.100627550436,
+    "business": "Planetary Media LLC",
+    "address": "4000 Horizons Dr, Columbus, Ohio, 43220",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43220.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.996322337536,
+    "lng": -83.073561714531,
+    "business": "BBCO DESIGN LLC",
+    "address": "2029 Riverside Dr, Suite 202, Columbus, Ohio, 43221",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43221.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.988845386537,
+    "lng": -83.042829382719,
+    "business": "J Reegle Transport LLC",
+    "address": "1350 W 5th Ave, Columbus, Ohio, 43212",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43212.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.011532180948,
+    "lng": -83.010897600563,
+    "business": "CRTC, LLC",
+    "address": "2419 N High St, Columbus, Ohio, 43202",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43202.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.955272846834,
+    "lng": -82.996775518636,
+    "business": "Colbert Enterprise",
+    "address": "341 S 3rd St, Suite 100, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.059013022137,
+    "lng": -82.931548470134,
+    "business": "Nadifo Transportation Inc",
+    "address": "3280 Morse Rd, Suite 201, Columbus, Ohio, 43231",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43231.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.101891905117,
+    "lng": -82.91531733373,
+    "business": "SkillzTech, Ohio",
+    "address": "924 Eastwind Dr, Westerville, Ohio, 43081",
+    "city": "Westerville",
+    "state": "Ohio",
+    "zip": "43081.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.087205888744,
+    "lng": -82.989929012484,
+    "business": "Virtuous beauty salon",
+    "address": "5900 Roche Dr, Suite 300, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.966244548543,
+    "lng": -82.9956801715289,
+    "business": "Holy Trinity Brewing LLC",
+    "address": "155 N 5th St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.134176733035,
+    "lng": -83.013478975284,
+    "business": "CDK & Associates, LLC",
+    "address": "116 Dillmont Dr, Columbus, Ohio, 43235",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43235.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.988671252499,
+    "lng": -83.005542989357,
+    "business": "FuelHouse LLC",
+    "address": "11 E 6th Ave, Unit 201, Columbus, Ohio, 43201",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43201.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.960042946022,
+    "lng": -82.998325751628,
+    "business": "MK Restaurants LLC",
+    "address": "65 E State St, Suite 102, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.939819299588,
+    "lng": -82.983166493002,
+    "business": "Affinity Memorial Chapel",
+    "address": "1166 Parsons Ave, Columbus, Ohio, 43206",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43206.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.925333065877,
+    "lng": -82.984262175385,
+    "business": "SHG Inc",
+    "address": "1856 Parsons Ave, Columbus, Ohio, 43207",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43207.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.957501636798,
+    "lng": -82.942003553241,
+    "business": "Bespoke Salon Studio",
+    "address": "2154 E Main St, Suite 204, Columbus, Ohio, 43209",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43209.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.130575406426,
+    "lng": -82.9753646175259,
+    "business": "Imraan transportation lox",
+    "address": "8171 Worthington Galena Rd, Westerville, Ohio, 43081",
+    "city": "Westerville",
+    "state": "Ohio",
+    "zip": "43081.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.955324856544,
+    "lng": -82.999117338564,
+    "business": "Forensics Evidence Detective Protective Agency",
+    "address": "330 S High St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.951730738371,
+    "lng": -83.021013551867,
+    "business": "Ohio Hates Cancer LLC",
+    "address": "818 Campbell Ave, Columbus, Ohio, 43222",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43222.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.95875502469,
+    "lng": -82.997567021753,
+    "business": "Col-Ak Can Supply Co., LLC",
+    "address": "175 S 3rd St, Suite 200, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.022868034441,
+    "lng": -83.059856883744,
+    "business": "Tabitha Tar Salon",
+    "address": "3231 Tremont Rd, Columbus, Ohio, 43221",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43221.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.95902244931,
+    "lng": -83.022995033778,
+    "business": "Specialized Therapeutic Offender Programming Inc dba STOP, Inc",
+    "address": "839 W Broad St, Columbus, Ohio, 43222",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43222.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.97656719758,
+    "lng": -82.959786012284,
+    "business": "Affordable Maid Services",
+    "address": "456 Parkwood Ave, Columbus, Ohio, 43203",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43203.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.95875502469,
+    "lng": -82.997567021753,
+    "business": "RST Global Vision Management and Consulting Firm., LLC",
+    "address": "175 S 3rd St, Suite 200, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.101364138583,
+    "lng": -83.089251128533,
+    "business": "Anamber Inc DBA Gokul Cafe",
+    "address": "2685 Federated Blvd, Columbus, Ohio, 43235",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43235.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.035415156761,
+    "lng": -82.947573076444,
+    "business": "Dalabtranport",
+    "address": "3264 Boyleston Blvd, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.922189768368,
+    "lng": -82.824432860512,
+    "business": "Glowyne Financial Services LLC",
+    "address": "6556 Centennial Dr, Reynoldsburg, Ohio, 43068",
+    "city": "Reynoldsburg",
+    "state": "Ohio",
+    "zip": "43068.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.944068212036,
+    "lng": -82.982506753403,
+    "business": "Acupuncture & Wellness of Merion Village, LLC",
+    "address": "535 E Whittier St, Columbus, Ohio, 43206",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43206.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.941490692991,
+    "lng": -83.062185208808,
+    "business": "Maskemup",
+    "address": "676 S Wayne Ave, Columbus, Ohio, 43204",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43204.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.086335218552,
+    "lng": -82.966257009174,
+    "business": "Simply a truck llc",
+    "address": "1933 E Dublin Granville Rd, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.957295986804,
+    "lng": -82.9882927811649,
+    "business": "Sprout Early Education Center",
+    "address": "415 E Main St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.09701091335,
+    "lng": -83.054988842017,
+    "business": "Rkg property services llc",
+    "address": "6572 McVey Blvd, Columbus, Ohio, 43235",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43235.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Mobile Mommies LLC",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.919560742527,
+    "lng": -82.994493629315,
+    "business": "Fortner Upholstering",
+    "address": "2050 South High Street, Columbus, Ohio, 43207",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43207.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.945012684886,
+    "lng": -82.890020079394,
+    "business": "Slay Queen LLC",
+    "address": "3967 E Livingston Ave, Columbus, Ohio, 43227",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43227.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.917173408865,
+    "lng": -83.0862426120259,
+    "business": "Central Ohio Powerwashing",
+    "address": "1810 Aggie Ct, Columbus, Ohio, 43223",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43223.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.039626602102,
+    "lng": -82.999198894482,
+    "business": "InSource Pro",
+    "address": "3688 Brinell St W, Apartment 421, Columbus, Ohio, 43214",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43214.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.949978920608,
+    "lng": -82.9508465449099,
+    "business": "Grab N Go LLC",
+    "address": "1758 Bide a Wee Park Ave, Columbus, Ohio, 43205",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43205.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.05829515404,
+    "lng": -83.019985176167,
+    "business": "Gowntastic LLC",
+    "address": "4699 N High St, Columbus, Ohio, 43214",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43214.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.055681467082,
+    "lng": -83.0196120976559,
+    "business": "Beechwold Bicycles LLC",
+    "address": "4584 N High St, Columbus, Ohio, 43214",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43214.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.093283732465,
+    "lng": -83.133577482371,
+    "business": "KTLB LLC",
+    "address": "565 Metro Pl S, Suite 300, Dublin, Ohio, 43017",
+    "city": "Dublin",
+    "state": "Ohio",
+    "zip": "43017.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.95875502469,
+    "lng": -82.997567021753,
+    "business": "The Saunders Company",
+    "address": "175 S 3rd St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.943270925406,
+    "lng": -82.901371271769,
+    "business": "Jbntaxflow",
+    "address": "3527 Seabrook Ave, Columbus, Ohio, 43227",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43227.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.094234030738,
+    "lng": -82.953110832234,
+    "business": "None Other Childcare",
+    "address": "2356 Laurelwood Dr, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.944414049361,
+    "lng": -82.984671379898,
+    "business": "Green Quarters LLC",
+    "address": "458 E Whittier St, Columbus, Ohio, 43206",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43206.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Hoston Construction LLC",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.055070887345,
+    "lng": -82.9319533998759,
+    "business": "LaVon Enterprise, LLC",
+    "address": "4128 Clayridge Ln, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.989925939585,
+    "lng": -82.945306358368,
+    "business": "Stephen Takacs Photography LLC",
+    "address": "1045 Wellington Blvd, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.944120221745,
+    "lng": -82.978685611383,
+    "business": "Peace of Mind Customer Service Virtual Assistant, LLC",
+    "address": "676 E Whittier St, Columbus, Ohio, 43206",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43206.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.145165827193,
+    "lng": -82.922541863715,
+    "business": "M6 Incorporated DBA PuroClean Certified Restoration Specialists",
+    "address": "752 N State St, Westerville, Ohio, 43082",
+    "city": "Westerville",
+    "state": "Ohio",
+    "zip": "43082.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.944549710464,
+    "lng": -82.879241035729,
+    "business": "Yara Counseling Group, LLC",
+    "address": "4343 E Livingston Ave, Columbus, Ohio, 43227",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43227.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.944781805363,
+    "lng": -82.897933182725,
+    "business": "Suggaplumms BakeryCafe",
+    "address": "3657 E Livingston Ave, Columbus, Ohio, 43227",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43227.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Jehan LLC",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.008123680022,
+    "lng": -82.9773980672369,
+    "business": "S&S Cement 3",
+    "address": "1183 E 26th Ave, Columbus, Ohio, 43211",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43211.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.956760006005,
+    "lng": -82.935974031191,
+    "business": "J-Pops, LLC",
+    "address": "600 Pleasant Ridge Ave, #9, Columbus, Ohio, 43209",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43209.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.954541483873,
+    "lng": -82.918989948425,
+    "business": "Rhonda's Daycare",
+    "address": "2958 E Mound St, Columbus, Ohio, 43209",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43209.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.026155584504,
+    "lng": -82.976947204665,
+    "business": "My Mama's Sweet Potato Pie Co.",
+    "address": "2938 Gerbert Rd, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Cmh xpress llc",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.991886885833,
+    "lng": -82.783634114444,
+    "business": "Together Textiles",
+    "address": "321 Slippery Elm Drive, Blacklick, Ohio, 43004",
+    "city": "Blacklick",
+    "state": "Ohio",
+    "zip": "43004.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.076759941912,
+    "lng": -82.96707885478,
+    "business": "Riziki Swahili Grill",
+    "address": "1872 Tamarack Cir S, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.94945760814,
+    "lng": -82.9821622571819,
+    "business": "R A Little INC",
+    "address": "704 Parsons Ave, Columbus, Ohio, 43206",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43206.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.069373808833,
+    "lng": -82.860891289479,
+    "business": "Lazer Kraze 4.0 Inc",
+    "address": "5524 N Hamilton Rd, Columbus, Ohio, 43230",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43230.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.919560742527,
+    "lng": -82.994493629315,
+    "business": "Mary Dietsch Architecture & Design LLC",
+    "address": "2050 South High Street, Columbus, Ohio, 43207",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43207.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.066398233206,
+    "lng": -83.0227624359649,
+    "business": "Persevere Studio",
+    "address": "146 Graceland Blvd, Columbus, Ohio, 43214",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43214.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.988157483744,
+    "lng": -82.9476147345019,
+    "business": "Forever Free Fitness",
+    "address": "955 Wellington Blvd, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.992199363183,
+    "lng": -83.0372688281519,
+    "business": "North Country Charcuterie",
+    "address": "1145 Chesapeake Ave, Suite E, Columbus, Ohio, 43212",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43212.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.080829188265,
+    "lng": -83.0512075978569,
+    "business": "Maube Mor's The Fitting Image",
+    "address": "1246 Lane On the Lk, Apartment A, Columbus, Ohio, 43235",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43235.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.955092552097,
+    "lng": -82.998475452419,
+    "business": "MAD Columbus Enterprise LLC, dba Jury Room Events",
+    "address": "22 E Mound St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.05144328347,
+    "lng": -83.08848871062,
+    "business": "Gruebmeyer Builders",
+    "address": "2580 Sandover Rd, Columbus, Ohio, 43220",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43220.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.929635664415,
+    "lng": -82.995564752722,
+    "business": "GEORDIE'S RESTAURANTS, LLC",
+    "address": "1586 S High St, Columbus, Ohio, 43207",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43207.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.925905005041,
+    "lng": -82.95471001554,
+    "business": "Electronic Systems Consultants",
+    "address": "1450 Universal Rd, Columbus, Ohio, 43207",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43207.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.057960883741,
+    "lng": -82.958204514793,
+    "business": "Luuq truck llc",
+    "address": "2289 Malin Pl, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.884223979844,
+    "lng": -82.984868522261,
+    "business": "R U On The Go Transportation",
+    "address": "581 Harland Dr, Columbus, Ohio, 43207",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43207.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.392705933374,
+    "lng": -82.471684488688,
+    "business": "Mary's Wheels",
+    "address": "718 E High St, Mount Vernon, Ohio, 43050",
+    "city": "Mount Vernon",
+    "state": "Ohio",
+    "zip": "43050.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.102653191473,
+    "lng": -82.97889968519,
+    "business": "Global Links International",
+    "address": "1397 Bolenhill Ave, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.023036720242,
+    "lng": -83.00142730726,
+    "business": "SquidCat, Ink LTD",
+    "address": "2912 Indianola Ave, Columbus, Ohio, 43202",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43202.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.064467294172,
+    "lng": -82.842975222898,
+    "business": "G.A.C. Consulting Services, LLC",
+    "address": "4070 Clifton Park Cir E, Apartment 203, New Albany, Ohio, 43054",
+    "city": "New Albany",
+    "state": "Ohio",
+    "zip": "43054.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.933091984099,
+    "lng": -82.9956243480539,
+    "business": "mohawk 11 Inc",
+    "address": "1430 S High St, Columbus, Ohio, 43207",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43207.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.962958004308,
+    "lng": -82.998381994198,
+    "business": "Aspen Careers,   LLC",
+    "address": "88 E Broad St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.130962189348,
+    "lng": -83.116549478432,
+    "business": "BLUE HERON ENGINEERING SERVICES, LTD",
+    "address": "4784 Donegal Cliffs Dr, Dublin, Ohio, 43017",
+    "city": "Dublin",
+    "state": "Ohio",
+    "zip": "43017.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.985674847842,
+    "lng": -82.952177339677,
+    "business": "Caine Enterprises, LLC",
+    "address": "1959 E 5th Ave, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.042131533866,
+    "lng": -82.8629360547579,
+    "business": "3C Sports, LLC",
+    "address": "947 E Johnstown Rd, Columbus, Ohio, 43230",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43230.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.942263546373,
+    "lng": -82.894888456396,
+    "business": "By Faith Community Printing, LLC",
+    "address": "3763 April Ln, Columbus, Ohio, 43227",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43227.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.997350000775,
+    "lng": -83.041777034775,
+    "business": "TicketFire",
+    "address": "1275 Kinnear Rd, Columbus, Ohio, 43212",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43212.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.157405291757,
+    "lng": -83.1761297225839,
+    "business": "K.G. Consulting, Inc.",
+    "address": "9533 Tartan Ridge Court, Dublin, Ohio, 43017",
+    "city": "Dublin",
+    "state": "Ohio",
+    "zip": "43017.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.959934987109,
+    "lng": -82.998338995035,
+    "business": "G&Z STORES ONC",
+    "address": "65 E State St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Reel Hoot Productions",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.946629620347,
+    "lng": -82.981890456184,
+    "business": "RHL STEAKS & BURGERS",
+    "address": "E Columbus St, Columbus, Ohio, 43206",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43206.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.954665577949,
+    "lng": -82.92260028558,
+    "business": "Sunstar Telecomm, Inc.",
+    "address": "772 S Broadleigh Rd, Columbus, Ohio, 43209",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43209.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.074926652049,
+    "lng": -82.998621884267,
+    "business": "Bareclay LLC",
+    "address": "734 E Lincoln Ave, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.266881094904,
+    "lng": -84.41291507539,
+    "business": "Jo Goenner Talent Agency, LLC",
+    "address": "10948 Reading Rd, Cincinnati, Ohio, 45241",
+    "city": "Cincinnati",
+    "state": "Ohio",
+    "zip": "45241.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "M.C. LIGE INSULATION",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.955232739428,
+    "lng": -83.0037808618529,
+    "business": "PolicyWorks, LLc",
+    "address": "155 W Main St, Apartment 1704, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.878501067813,
+    "lng": -83.069321477352,
+    "business": "Heaton Family Chiropractic Inc",
+    "address": "4138 Hoover Rd, Grove City, Ohio, 43123",
+    "city": "Grove City",
+    "state": "Ohio",
+    "zip": "43123.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.940489307018,
+    "lng": -82.880004794747,
+    "business": "Tj Lamin Property Management",
+    "address": "1668 Wilton Dr, Columbus, Ohio, 43227",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43227.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.021407068717,
+    "lng": -82.923064056282,
+    "business": "Lulu's Transportation LLC",
+    "address": "3265 Gatewood Ct, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.043810722439,
+    "lng": -82.9418827700159,
+    "business": "Naturally with Nature",
+    "address": "2724 Stonehenge Dr, Unit C, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.923993218655,
+    "lng": -83.0921262051409,
+    "business": "Little Learners Creative Center",
+    "address": "1421 Demorest Rd, Columbus, Ohio, 43228",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43228.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.063416957885,
+    "lng": -82.911544471472,
+    "business": "Plus express transport LLC",
+    "address": "4327 Clock Court, Columbus, Ohio, 43230",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43230.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.922540090011,
+    "lng": -82.984271730755,
+    "business": "Iron Fortress Security",
+    "address": "2000 Parsons Ave, Columbus, Ohio, 43207",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43207.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.9923381675,
+    "lng": -83.039708464891,
+    "business": "2Shea Creative",
+    "address": "1211 Chesapeake Ave, Columbus, Ohio, 43212",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43212.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.093531669161,
+    "lng": -83.08369199889,
+    "business": "Shruthi Beauty Care",
+    "address": "3530 West Dublin-Granville Road, Columbus, Ohio, 43235",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43235.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.090784039391,
+    "lng": -83.0095607708249,
+    "business": "Blue Dot Marching, LLC",
+    "address": "364 Pingree Dr, Worthington, Ohio, 43085",
+    "city": "Worthington",
+    "state": "Ohio",
+    "zip": "43085.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.905387698629,
+    "lng": -82.863981529541,
+    "business": "LV Janitorial Services",
+    "address": "3507 Wyncote Rd, Columbus, Ohio, 43232",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43232.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.100006689364,
+    "lng": -82.973540966852,
+    "business": "Ask Ayo llc",
+    "address": "6490 Faircrest Rd, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.949409496016,
+    "lng": -83.056620798566,
+    "business": "Focus cleaning llc",
+    "address": "303 Whitethorne Ave, Columbus, Ohio, 43223",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43223.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.955740305574,
+    "lng": -82.9894090830299,
+    "business": "Eden Counseling Centers",
+    "address": "360 S Grant Ave, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.988845386537,
+    "lng": -83.042829382719,
+    "business": "Rapid Response Trainings LLC",
+    "address": "1350 W 5th Ave, Suite 116, Columbus, Ohio, 43212",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43212.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "TJ Business Services",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.867176026975,
+    "lng": -82.869698322783,
+    "business": "Anthony",
+    "address": "5650 Nutmeg Pl, Groveport, Ohio, 43125",
+    "city": "Groveport",
+    "state": "Ohio",
+    "zip": "43125.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.100364093715,
+    "lng": -82.951554815728,
+    "business": "Inspired Heating and Cooling, LLC",
+    "address": "1425 Community Park Dr, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.981918497934,
+    "lng": -83.0042308862339,
+    "business": "Devine Tatsings",
+    "address": "958 N High St, Columbus, Ohio, 43201",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43201.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.05208998921,
+    "lng": -83.0491150557289,
+    "business": "TRAIN.",
+    "address": "4516 Kenny Rd, Suite B, Columbus, Ohio, 43220",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43220.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.101505918476,
+    "lng": -82.978852411257,
+    "business": "Fallen Tree Woodshop",
+    "address": "1404 Bosworth Pl, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.009756181394,
+    "lng": -83.08568823295,
+    "business": "George Kun Travel Inc.",
+    "address": "2780 Abington Rd, Upper Arlington, Ohio, 43221",
+    "city": "Upper Arlington",
+    "state": "Ohio",
+    "zip": "43221.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Nur Mao",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.962952220795,
+    "lng": -83.038183880522,
+    "business": "Macabee Metals",
+    "address": "1376 River St, Columbus, Ohio, 43222",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43222.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "PRINA Health Care LLC",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.968348302498,
+    "lng": -83.018006900875,
+    "business": "Phoenix Consulting Company, LLC",
+    "address": "Columbus Crew Way, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.897501543117,
+    "lng": -82.84976808487,
+    "business": "Sentryc services",
+    "address": "5452 Beresford St, Canal Winchester, Ohio, 43110",
+    "city": "Canal Winchester",
+    "state": "Ohio",
+    "zip": "43110.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.96451519428,
+    "lng": -83.002732118127,
+    "business": "Cookie Cravings Bakery LLC",
+    "address": "114 N Front St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.112740853854,
+    "lng": -83.0873635239369,
+    "business": "Tupelo Doughnuts",
+    "address": "2680 Billingsley Rd, Columbus, Ohio, 43235",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43235.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.088040097658,
+    "lng": -82.9690175051659,
+    "business": "Buckeye Training Solutions",
+    "address": "5900 Sharon Woods Blvd, Suite D, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.969955258989,
+    "lng": -83.004876125141,
+    "business": "Interior Space",
+    "address": "383 N Front St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Anna Mans Architecture and Consulting, LLC.",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.111971939966,
+    "lng": -82.931319811815,
+    "business": "Stealth Entry LLC",
+    "address": "171 Charring Cross Dr S, Westerville, Ohio, 43081",
+    "city": "Westerville",
+    "state": "Ohio",
+    "zip": "43081.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.099638346629,
+    "lng": -82.8358832108019,
+    "business": "Mehta Holdings LLC",
+    "address": "5800 Central College Rd, New Albany, Ohio, 43054",
+    "city": "New Albany",
+    "state": "Ohio",
+    "zip": "43054.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Dior Tresses LLC",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.938037390792,
+    "lng": -82.841959922967,
+    "business": "Broadnax",
+    "address": "5676 Oakmont Dr, Columbus, Ohio, 43232",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43232.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.961808342469,
+    "lng": -82.954601972808,
+    "business": "Black Girl Magic Masters LLC",
+    "address": "264 Morrison Ave, Columbus, Ohio, 43205",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43205.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.972179564634,
+    "lng": -83.004173889292,
+    "business": "Nida's Sushi",
+    "address": "59 Spruce St, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Rick Buchanan Photography",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.977631364007,
+    "lng": -83.009827566803,
+    "business": "Unhinged Design Co",
+    "address": "226 Buttles Ave, Apartment 2 C, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Adore community care",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.939420446725,
+    "lng": -83.120126623251,
+    "business": "Taran trucking llc",
+    "address": "631 Brent Blvd, Apartment C 7, Columbus, Ohio, 43228",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43228.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.988396661351,
+    "lng": -82.841193900835,
+    "business": "ETM CAR SERVICE",
+    "address": "6080 Stockton Trail Way, Columbus, Ohio, 43213",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43213.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.053517762596,
+    "lng": -82.9163050572,
+    "business": "Business Information Technology Services, LLC.",
+    "address": "4200 Regent St, Suite 200, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Healthcare IT resources",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.982257084913,
+    "lng": -83.0043782400919,
+    "business": "Thai on High Llc",
+    "address": "976 North High Street, Columbus, Ohio, 43201",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43201.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Charming Accessories",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.955034675056,
+    "lng": -83.064464751195,
+    "business": "614 Hairsnobs Studio",
+    "address": "11 S Wayne Ave, Columbus, Ohio, 43204",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43204.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.949941160134,
+    "lng": -82.828881890899,
+    "business": "Dolphin Relaxation Center",
+    "address": "1488 Brice Rd, Reynoldsburg, Ohio, 43068",
+    "city": "Reynoldsburg",
+    "state": "Ohio",
+    "zip": "43068.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.944154629458,
+    "lng": -82.883444392534,
+    "business": "J Mitchell's Spices & Sauces LLC",
+    "address": "1475 Burlington Ave, Columbus, Ohio, 43227",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43227.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.938037223154,
+    "lng": -82.9593538413569,
+    "business": "UPFAD Unlimited Possibilities For All Disabilities",
+    "address": "1380 Lilley Ave, Columbus, Ohio, 43206",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43206.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.934295709214,
+    "lng": -83.125007656927,
+    "business": "Roadside Transportation llc",
+    "address": "848 Tiger Dr, Columbus, Ohio, 43228",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43228.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.938183906459,
+    "lng": -83.1341881040179,
+    "business": "Majestiv Rehab and Remodeling LLC",
+    "address": "5071 Cherry Creek Parkway North, Columbus, Ohio, 43228",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43228.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.055128429111,
+    "lng": -82.930481956774,
+    "business": "BAYO & ASSOCIATES LLC",
+    "address": "4125 Sundance Dr, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.060670082486,
+    "lng": -83.0417502126849,
+    "business": "Nailspa by joyce LLC",
+    "address": "807 Bethel Rd, Columbus, Ohio, 43214",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43214.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.889123411797,
+    "lng": -83.087217930279,
+    "business": "ERA Real Solutions Realty",
+    "address": "3656 Broadway, Grove City, Ohio, 43123",
+    "city": "Grove City",
+    "state": "Ohio",
+    "zip": "43123.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.088630896103,
+    "lng": -82.9484168826359,
+    "business": "Nafaqo better plc",
+    "address": "5794 Columbus Sq, Columbus, Ohio, 43231",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43231.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.112321758695,
+    "lng": -82.92850248652,
+    "business": "Divine Acceleration Company",
+    "address": "38 Rushka Ct, Westerville, Ohio, 43081",
+    "city": "Westerville",
+    "state": "Ohio",
+    "zip": "43081.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.029682479813,
+    "lng": -82.8900287965729,
+    "business": "H & x transport llc",
+    "address": "378 Gamewood Dr, Columbus, Ohio, 43230",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43230.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.969708244302,
+    "lng": -83.000378814992,
+    "business": "Donya's Florals",
+    "address": "400 N High St, Suite 198, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.09167486806,
+    "lng": -82.993706652426,
+    "business": "Global One Inc",
+    "address": "6161 Busch Blvd, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.917196962013,
+    "lng": -82.877783338948,
+    "business": "Shaheed house of cleaning service LLC",
+    "address": "2845 Citizens Pl, Apartment G, Columbus, Ohio, 43232",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43232.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.945335471977,
+    "lng": -83.064491238009,
+    "business": "Kelsos Barber Shop",
+    "address": "2460 Sullivant Ave, Columbus, Ohio, 43204",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43204.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.934970368601,
+    "lng": -82.968168083098,
+    "business": "MBC ENTERPRISES",
+    "address": "1478 Wilson Ave, Columbus, Ohio, 43206",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43206.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.093283732465,
+    "lng": -83.133577482371,
+    "business": "Bidgig LLC",
+    "address": "565 Metro Pl S, Suite 300, Dublin, Ohio, 43017",
+    "city": "Dublin",
+    "state": "Ohio",
+    "zip": "43017.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.05591108932,
+    "lng": -82.937099134055,
+    "business": "Nanacash llc",
+    "address": "4187 Highgate Dr, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.943820442978,
+    "lng": -82.9896367355199,
+    "business": "Noether Rudin Inc",
+    "address": "268 Reinhard Ave, Columbus, Ohio, 43206",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43206.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.11325541889,
+    "lng": -83.1912749834319,
+    "business": "Patterson Pools, LLC",
+    "address": "8155 Memorial Drive, Plain City, Ohio, 43064",
+    "city": "Plain City",
+    "state": "Ohio",
+    "zip": "43064.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.025091607469,
+    "lng": -82.913857999135,
+    "business": "American military carrier llc",
+    "address": "2558 Villa Savoire, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.942434662926,
+    "lng": -82.9730278267399,
+    "business": "XTREME CLEAN JANITORIAL SERVICE LLC",
+    "address": "1092 S 22nd St, Columbus, Ohio, 43206",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43206.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "First steps achievement center",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.034744478778,
+    "lng": -82.945372910679,
+    "business": "GLORY EVENT & DECOR",
+    "address": "3220 Bidlington Dr, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.94355280881,
+    "lng": -83.079542621542,
+    "business": "Babies and Beyond childcare center",
+    "address": "3030 Sullivant Ave, Columbus, Ohio, 43204",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43204.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.079049081578,
+    "lng": -83.0478875260089,
+    "business": "THEREALT614LLC",
+    "address": "5560 Linworth Rd, Columbus, Ohio, 43235",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43235.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.936345838912,
+    "lng": -83.150454360596,
+    "business": "Fatt Albert's Baby Gourmet Goodies",
+    "address": "5779 Oyster Bay Way, Galloway, Ohio, 43119",
+    "city": "Galloway",
+    "state": "Ohio",
+    "zip": "43119.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.106948749212,
+    "lng": -82.9776088721009,
+    "business": "FULLY LOADED LOGISTICS LLC",
+    "address": "1425 Sharon Creek Court, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.081788245627,
+    "lng": -83.126240215789,
+    "business": "GROOVE U",
+    "address": "5030 Bradenton Ave, Dublin, Ohio, 43017",
+    "city": "Dublin",
+    "state": "Ohio",
+    "zip": "43017.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.073811314103,
+    "lng": -82.9330031494299,
+    "business": "A AND H INVESTMENTS LLC",
+    "address": "4850 Farview Rd, Columbus, Ohio, 43231",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43231.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "ZPA LLC",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.942253571908,
+    "lng": -83.090371034616,
+    "business": "Sullivant Avenue Community School",
+    "address": "3435 Sullivant Ave, Columbus, Ohio, 43204",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43204.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.999766838737,
+    "lng": -82.97007328969,
+    "business": "The Watkins Printing Company",
+    "address": "1401 E 17th Ave, Columbus, Ohio, 43211",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43211.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.022036717284,
+    "lng": -82.791401456479,
+    "business": "Chelsey Clean Janitorial LLC",
+    "address": "8264 Woodland Creek Ct, Blacklick, Ohio, 43004",
+    "city": "Blacklick",
+    "state": "Ohio",
+    "zip": "43004.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.983052519349,
+    "lng": -82.8112157362889,
+    "business": "CI Publishing Group",
+    "address": "Columbus Rd SW, Columbus, Ohio, 43213",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43213.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.056431605507,
+    "lng": -82.857872127955,
+    "business": "KOR Services LLC",
+    "address": "3759 Renwick Ln, Columbus, Ohio, 43230",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43230.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.90741331126,
+    "lng": -82.9246570369809,
+    "business": "Creative Culinary Holdings LLC DBA Young Chefs Academy of Gahanna",
+    "address": "2664 Tealwater Trail Dr, Columbus, Ohio, 43207",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43207.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.926222804899,
+    "lng": -82.781044441639,
+    "business": "Omega Limousines LLC",
+    "address": "13086 Morrison Pl, Pickerington, Ohio, 43147",
+    "city": "Pickerington",
+    "state": "Ohio",
+    "zip": "43147.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.0316123292,
+    "lng": -83.135874375299,
+    "business": "Mat Happy Yoga, LLC",
+    "address": "4477 Cemetery Rd, Hilliard, Ohio, 43026",
+    "city": "Hilliard",
+    "state": "Ohio",
+    "zip": "43026.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Ja'Lae's Jungle Rides LP",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Your Professional Helper, Ltd",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.931927234834,
+    "lng": -82.879715199992,
+    "business": "Alpha & Omega Supported Living Agency, LLC",
+    "address": "2101 S Hamilton Rd, Suite 114, Columbus, Ohio, 43232",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43232.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.946028739189,
+    "lng": -82.878273093551,
+    "business": "INNOVATIVE HOME HEALTH PRACTICE",
+    "address": "1415 S Hamilton Rd, Columbus, Ohio, 43227",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43227.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.955013133565,
+    "lng": -83.07808408657,
+    "business": "Elleman & Newcome LLC",
+    "address": "2904 W Broad St, Columbus, Ohio, 43204",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43204.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.904931304001,
+    "lng": -83.137556707085,
+    "business": "JPs MAIN MARKET LLC",
+    "address": "2000 Norton Rd, Columbus, Ohio, 43228",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43228.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.990136199626,
+    "lng": -83.031357910033,
+    "business": "BodyByMe, Inc",
+    "address": "1508 Hess St, Suite D, Columbus, Ohio, 43212",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43212.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.99464348424,
+    "lng": -82.927954896785,
+    "business": "Jerrys Automatic Transmission Service",
+    "address": "2904 E 14th Ave, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.997350000775,
+    "lng": -83.041777034775,
+    "business": "SenseICs Ltd.",
+    "address": "1275 Kinnear Rd, Columbus, Ohio, 43212",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43212.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.033807172456,
+    "lng": -82.910676525398,
+    "business": "TG Salon & Day Spa",
+    "address": "2959 Stelzer Rd, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.937424212665,
+    "lng": -82.846370061322,
+    "business": "Lady OCD Cleaning, LLC",
+    "address": "1986 Bairsford Dr, Columbus, Ohio, 43232",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43232.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.034088762493,
+    "lng": -82.9627676228819,
+    "business": "HINDO shop",
+    "address": "3252 Cleveland Ave, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.957750705051,
+    "lng": -82.9711463409339,
+    "business": "Feed me! Sandwich Kings!",
+    "address": "1053 E Main St, Columbus, Ohio, 43205",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43205.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.973604907269,
+    "lng": -82.91718892889,
+    "business": "Elegant Touch Cleaning Svc",
+    "address": "87 Edgevale Rd, Columbus, Ohio, 43209",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43209.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "Kokow  logistics llc",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.977942252696,
+    "lng": -82.9767073795279,
+    "business": "Another Chance Housing",
+    "address": "889 Leonard Ave, Columbus, Ohio, 43203",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43203.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.906140309715,
+    "lng": -82.880535872132,
+    "business": "Little Miracles EDC",
+    "address": "4445 Reinbeau Dr, Columbus, Ohio, 43232",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43232.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.956046370769,
+    "lng": -82.995382949242,
+    "business": "Axe Capital One Inc",
+    "address": "309 South 4th Street, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.95875502469,
+    "lng": -82.997567021753,
+    "business": "Deeva Star Travel, LLC",
+    "address": "175 S 3rd St, Suite 200, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.05330614319,
+    "lng": -83.045680390352,
+    "business": "We Can Help llc",
+    "address": "956 Benchmark Park Dr, Columbus, Ohio, 43220",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43220.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.970161286169,
+    "lng": -82.912621126935,
+    "business": "J&D Crystal Clear Cleaning Services llc",
+    "address": "87 S Ashburton Rd, Columbus, Ohio, 43213",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43213.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.95504557153,
+    "lng": -83.067807454182,
+    "business": "Scott Gosselin Chiropractic, LLC",
+    "address": "2527 West Broad Street, Columbus, Ohio, 43204",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43204.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 0.0,
+    "lng": 0.0,
+    "business": "1124 Business Operations LLC",
+    "address": "",
+    "city": "",
+    "state": "",
+    "zip": "",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.943835320856,
+    "lng": -82.903304054822,
+    "business": "Buckeye booty enterprises",
+    "address": "3456 Seabrook Ave, Columbus, Ohio, 43227",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43227.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.066398233206,
+    "lng": -83.0227624359649,
+    "business": "Sa Adam's truck llc",
+    "address": "118 Graceland Blvd, Columbus, Ohio, 43214",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43214.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.947715429565,
+    "lng": -83.1558561619169,
+    "business": "ANGEL ANIMAL HOSPITAL, INC.",
+    "address": "175 Galloway Rd, Galloway, Ohio, 43119",
+    "city": "Galloway",
+    "state": "Ohio",
+    "zip": "43119.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.938181852893,
+    "lng": -82.897183672943,
+    "business": "perkins playhouse & learning center",
+    "address": "1700 Courtright Rd, Columbus, Ohio, 43227",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43227.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.994169655253,
+    "lng": -82.922352013608,
+    "business": "West Personal Services, LLC",
+    "address": "1100 Rarig Ave, Suite H, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.085534160065,
+    "lng": -82.96543667231,
+    "business": "KSSM TRANSPORT LLC",
+    "address": "1922 Forest Elm Court, Columbus, Ohio, 43229",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43229.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 40.012086727662,
+    "lng": -82.949111910048,
+    "business": "Blessed Hands Barbershop LLC",
+    "address": "2222 Mock Rd, Columbus, Ohio, 43219",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43219.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.941732091802,
+    "lng": -83.098048438829,
+    "business": "Gendershe Restaurant Pastries and LLC",
+    "address": "587 Wedgewood Dr, Columbus, Ohio, 43228",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43228.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.981887359164,
+    "lng": -83.0486434898569,
+    "business": "3J Investments",
+    "address": "1627 W 1st Ave, Columbus, Ohio, 43212",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43212.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 39.959128228928,
+    "lng": -82.9958684290739,
+    "business": "Bluestone Law Group, LLC",
+    "address": "141 E Town St, Suite 100, Columbus, Ohio, 43215",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43215.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  },
+  {
+    "lat": 39.945398964894,
+    "lng": -82.983369670335,
+    "business": "All God's Children learning center",
+    "address": "895 Parsons Ave, Suite C, Columbus, Ohio, 43206",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43206.0",
+    "is_woman_owned": true,
+    "color": "red"
+  },
+  {
+    "lat": 40.040938998592,
+    "lng": -82.9401263422049,
+    "business": "ALSHEMAR II",
+    "address": "2757 Vantage Point Dr, Columbus, Ohio, 43224",
+    "city": "Columbus",
+    "state": "Ohio",
+    "zip": "43224.0",
+    "is_woman_owned": false,
+    "color": "blue"
+  }
+];
+
+        // Function to create custom marker icon
+        function createCustomIcon(color) {
+            let colorHex = color === 'red' ? '#e74c3c' : '#3498db';
+            
+            let html = `<div style="background-color: ${colorHex}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.4);"></div>`;
+            
+            return L.divIcon({
+                className: 'custom-marker',
+                html: html,
+                iconSize: [14, 14],
+                iconAnchor: [7, 7]
+            });
+        }
+
+        // Add markers to map
+        let validLocations = 0;
+        locations.forEach(location => {
+            if (location.lat && location.lng && !isNaN(location.lat) && !isNaN(location.lng)) {
+                // Create popup content
+                const womanOwnedText = location.is_woman_owned ? 'Yes' : 'No';
+                
+                const popupContent = `
+                    <div class="popup-business">${location.business || 'N/A'}</div>
+                    <div class="popup-address">${location.address || 'N/A'}</div>
+                    <div class="popup-detail">${location.city || ''}, ${location.state || ''} ${location.zip || ''}</div>
+                    <div class="popup-ownership">
+                        <div class="popup-ownership-item"><strong>Female Owned:</strong> ${womanOwnedText}</div>
+                    </div>
+                `;
+
+                const icon = createCustomIcon(location.color);
+                
+                L.marker([location.lat, location.lng], { icon: icon })
+                    .bindPopup(popupContent)
+                    .addTo(map);
+                
+                validLocations++;
+            }
+        });
+
+        // Fit map to show all markers if there are any
+        if (validLocations > 0) {
+            const group = L.featureGroup(
+                locations
+                    .filter(loc => loc.lat && loc.lng && !isNaN(loc.lat) && !isNaN(loc.lng))
+                    .map(loc => L.marker([loc.lat, loc.lng]))
+            );
+            map.fitBounds(group.getBounds().pad(0.1));
+        }
+    </script>
+</body>
+</html>
